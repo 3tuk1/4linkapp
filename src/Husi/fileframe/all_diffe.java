@@ -1,7 +1,7 @@
 package Husi.fileframe;
 
 import Husi.mainsrc.Progresslistener;
-import Husi.mainsrc.inputresult;
+import Husi.mainsrc.inputResult;
 import Husi.simframe.cal_sim;
 
 import javax.swing.*;
@@ -48,7 +48,7 @@ public class all_diffe {
     private void make_cope(){
         filename = "resultfile" + "\\" + filename;
 
-        inputresult make =  new inputresult();
+        inputResult make =  new inputResult();
         copyfilename = make.makefile();
     }
 

@@ -6,10 +6,9 @@ import java.time.format.DateTimeFormatter;
 
 import javax.swing.JOptionPane;
 
-public class inputresult {
+public class inputResult {
 
-
-    public void inputresult(double A, double B, double C, double D, double amplitude,String Filename){
+    public void inputResult(double A, double B, double C, double D, double amplitude, String Filename){
         DecimalFormat df = new DecimalFormat("#.00");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Filename,true))) {
             String inputString = df.format(A) + " , " + df.format(B) + " , " + df.format(C) + " , " + df.format(D) + " : " + df.format(amplitude) + "\n";
@@ -19,13 +18,9 @@ public class inputresult {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
-
-
-
-
+    // 結果出力用のファイルの作製
     public String makefile(){
         int count = 1;
         File newFile;
@@ -51,6 +46,8 @@ public class inputresult {
         JOptionPane.showMessageDialog(null,"ファイルを作成しました。\nファイル名は:"+filename);
         return filename;
     }
+
+    // 計算結果の出力
     public  String outresult(String Filename,int lineNum){
         String result=null;
         int currentLine = 0;

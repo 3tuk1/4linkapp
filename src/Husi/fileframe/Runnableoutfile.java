@@ -13,9 +13,9 @@ public class Runnableoutfile implements Runnable {
             while ((line = br.readLine()) != null) {
                 String finalLine = line; // final変数に代入
                 SwingUtilities.invokeLater(() -> {
-                    DefaultListModel<String> filelistmodel = fileFrame.getFilelistmodel();
+                    DefaultListModel<String> filelistmodel = fileFrame.getRecordModel();
                     filelistmodel.addElement(finalLine);
-                    fileFrame.setFilelistmodel(filelistmodel); 
+                    fileFrame.setRecordModel(filelistmodel);
                 });
             }
         } catch (IOException e) {

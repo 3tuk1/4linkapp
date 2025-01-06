@@ -17,7 +17,7 @@ public class MyFrame extends JFrame implements ActionListener {
     public JPanel graphPanel;
     private JLabel out_max;
     private JLabel out_min;
-    inputresult inputresult = new inputresult();
+    inputResult inputresult = new inputResult();
     GridBagConstraints gbc = new GridBagConstraints();
     JPanel mainpanel = new JPanel(new GridBagLayout());
     JPanel filepanel = new JPanel(new GridBagLayout());
@@ -25,7 +25,6 @@ public class MyFrame extends JFrame implements ActionListener {
     private JProgressBar progbar = new JProgressBar();
     public static JTabbedPane tabbedpane;
     public static simFrame simFrame;
-
 
 
     MyFrame(String title) {
@@ -46,8 +45,8 @@ public class MyFrame extends JFrame implements ActionListener {
 
         createimagePanel();
 
-        JPanel panel = createpanel();
-        JPanel input2Panel = create2panel();
+        JPanel panel = createLinkSettingPanel();
+        JPanel input2Panel = createCalcSettingPanel();
         JPanel outputPanel = createOutPanel();
         JButton button = createButton();
 
@@ -91,165 +90,12 @@ public class MyFrame extends JFrame implements ActionListener {
         tabbedpane.addTab("シミュレータ", simpanel);
         getContentPane().add(tabbedpane, BorderLayout.CENTER);
     }
-    public class variablelist{
-        public boolean variables;
-        String variablename;
+
+    public class checkbox_data {
+        public boolean is_checked;
+        String name;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String Filename = inputresult.makefile();
-        //変数用のリスト
-        variablelist[] variablelist = new variablelist[4];
-        //resultArea.setText("");
-        for (int i = 0; i < 4; i++) {
-            variablelist[i] = new variablelist(); // 各要素を初期化
-        }
-        variablelist[0].variables = checkbox1.isSelected(); // A
-        variablelist[1].variables = checkbox2.isSelected(); // B
-        variablelist[2].variables = checkbox3.isSelected(); // C
-        variablelist[3].variables = checkbox4.isSelected(); // D
-        int fixedValue = 0;
-        //増加量用のboolean型の変数
-        boolean scope10=checkbox5.isSelected();
-        boolean scope100=checkbox6.isSelected();
-        double a=1,b=1,c=1,d=1,r=18;
-        if((scope10==true)&&(scope100==true)){
-            JOptionPane.showMessageDialog(null,"倍率を両方選択しないでください。");
-            return;
-        }
-        //増加量を変更する
-        if(scope10==true){
-            inc=0.1;
-        }else if(scope100==true){
-            inc=0.01;
-        }else {
-            inc=1;
-        }
-
-            if(checkbox1.isSelected()==true){
-                A.setText("変数");
-            }else{
-                try {
-                    a = Double.parseDouble(A.getText());
-                    // 数値が正しく入力された場合の処理
-                } catch (NumberFormatException ex) {
-                    // 数値以外の文字列が入力された場合のエラーメッセージ表示
-                    JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
-                    return;
-                }
-            }
-            if(checkbox2.isSelected()==true){
-                B.setText("変数");
-            }else{
-                try {
-                    b = Double.parseDouble(B.getText());
-                    // 数値が正しく入力された場合の処理
-                } catch (NumberFormatException ex) {
-                    // 数値以外の文字列が入力された場合のエラーメッセージ表示
-                    JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
-                    return;
-                }
-            }
-            if(checkbox3.isSelected()==true){
-                C.setText("変数");
-            }else{
-                try {
-                    c = Double.parseDouble(C.getText());
-                    // 数値が正しく入力された場合の処理
-                } catch (NumberFormatException ex) {
-                    // 数値以外の文字列が入力された場合のエラーメッセージ表示
-                    JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
-                    return;
-                }
-            }
-            if(checkbox4.isSelected()==true){
-                D.setText("変数");
-            }else{
-                try {
-                    d = Double.parseDouble(D.getText());
-                    // 数値が正しく入力された場合の処理
-                } catch (NumberFormatException ex) {
-                    // 数値以外の文字列が入力された場合のエラーメッセージ表示
-                    JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
-                    return;
-                }
-            }
-            r=Double.parseDouble(R.getText());
-            try {
-                min_inch = Integer.parseInt(min_vari.getText());
-                max_inch = Integer.parseInt(max_vari.getText());
-                // 数値が正しく入力された場合の処理
-            } catch (NumberFormatException ex) {
-                // 数値以外の文字列が入力された場合のエラーメッセージ表示
-                JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
-                return;
-            }
-            
-            
-            
-            if (variablelist[0].variables) {
-                variablelist[0].variablename="A";
-                fixedValue++;
-            }else{
-                variablelist[0].variablename=null;
-            }
-            if (variablelist[1].variables) {
-                variablelist[1].variablename="B";
-                fixedValue++;
-            }else{
-                variablelist[1].variablename=null;
-            }
-            if (variablelist[2].variables) {
-                variablelist[2].variablename="C";
-                fixedValue++;
-            }else{
-                variablelist[2].variablename=null;
-            }
-            if (variablelist[3].variables) {
-                variablelist[3].variablename="D";
-                fixedValue++;
-            }else{
-                variablelist[3].variablename=null;
-            }
-
-            ProgressReceiver recv = new ProgressReceiver();
-            if (fixedValue == 0) {
-                JOptionPane.showMessageDialog(null,"変数を選択してください。");
-                return;
-            }else if(fixedValue==3){
-
-                maincal_3vari calnum = new maincal_3vari();
-                calnum.setliten(recv);
-                calnum.Grashoftheorem(a, b, c, d, r, variablelist, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
-
-            }else if(fixedValue==2) {
-                maincal_2vari calnum= new maincal_2vari();
-                calnum.setliten(recv);
-                calnum.Grashoftheorem(a, b, c, d, r, variablelist, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
-
-            }else if(fixedValue==1){
-                maincal  calnum =  new maincal();
-                calnum.setliten(recv);
-                calnum.Grashoftheorem(a, b, c, d, r, variablelist, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
-
-            }else if(fixedValue==4){
-                maincal_4vari calnum =new maincal_4vari();
-                calnum.setliten(recv);
-                calnum.Grashoftheorem(a, b, c, d, r, variablelist, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
-
-            }
-            String result ;
-            maxandmin maxandmin = new maxandmin();
-            maxandmin.maxString(Filename);
-            out_max.setText(maxandmin.getMaxString());
-            out_min.setText(maxandmin.getMinString());
-            if(graphPanel != null){
-                graphPanel.repaint(); 
-            }
-            
-    }
-    
     void setLAF() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -261,8 +107,9 @@ public class MyFrame extends JFrame implements ActionListener {
 			e.printStackTrace();
 		}
 	}
-    
-    private JPanel createpanel() {
+
+    // リンクの長さを設定するパネルの作製
+    private JPanel createLinkSettingPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 3, 10, 10));
         JLabel A_label = new JLabel("節Aの長さ");
         A = new JTextField(10);
@@ -303,6 +150,7 @@ public class MyFrame extends JFrame implements ActionListener {
         return panel;
     }
 
+    // レイアウト崩れ防止
     private void setFullScreen() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -315,7 +163,8 @@ public class MyFrame extends JFrame implements ActionListener {
         }
     }
 
-    private JPanel create2panel() {
+    // 計算用のパラメーターの設定するパネルの作製
+    private JPanel createCalcSettingPanel() {
 
         JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
         JPanel panel1 = new JPanel(new GridLayout(1, 3, 10, 10));
@@ -370,6 +219,7 @@ public class MyFrame extends JFrame implements ActionListener {
         return panel;
     }
 
+    // 最大値や最小値、計算の進行度の表示するパネルの作製
     private JPanel createOutPanel(){
         JPanel panel = new JPanel(new GridBagLayout());
 
@@ -422,6 +272,7 @@ public class MyFrame extends JFrame implements ActionListener {
         return panel;
     }
 
+    // 説明画像を表示するパネルの作製
     private void createimagePanel(){
         
         ImageIcon imagelinknomal = new ImageIcon(getClass().getResource("/image/四節リンク機構図(通常).png"));
@@ -457,6 +308,8 @@ public class MyFrame extends JFrame implements ActionListener {
 
     }
 
+    // プログレスバーのコールバック関数
+    // スレッド処理を試したが計算中に処理がうまく反映されなかった；；
     class ProgressReceiver implements Progresslistener {
 
         @Override
@@ -473,11 +326,168 @@ public class MyFrame extends JFrame implements ActionListener {
             progbar.setMaximum(max);
         }
     }
+
+    // 計算ボタンの作製
     private JButton createButton(){
         JButton button = new JButton("計算");
         button.addActionListener(this);
         button.setPreferredSize(new Dimension(100, 30));
         return button;
+    }
+
+    // 計算ボタン押下時の処理
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String Filename = inputresult.makefile();
+        //変数用のリスト
+        checkbox_data[] checkbox_data = new checkbox_data[4];
+        //resultArea.setText("");
+        for (int i = 0; i < 4; i++) {
+            checkbox_data[i] = new checkbox_data(); // 各要素を初期化
+        }
+        checkbox_data[0].is_checked = checkbox1.isSelected(); // A
+        checkbox_data[1].is_checked = checkbox2.isSelected(); // B
+        checkbox_data[2].is_checked = checkbox3.isSelected(); // C
+        checkbox_data[3].is_checked = checkbox4.isSelected(); // D
+        int fixedValue = 0;
+        //増加量用のboolean型の変数
+        boolean scope10=checkbox5.isSelected();
+        boolean scope100=checkbox6.isSelected();
+        double a=1,b=1,c=1,d=1,r=18;
+        if((scope10==true)&&(scope100==true)){
+            JOptionPane.showMessageDialog(null,"倍率を両方選択しないでください。");
+            return;
+        }
+        //増加量を変更する
+        if(scope10==true){
+            inc=0.1;
+        }else if(scope100==true){
+            inc=0.01;
+        }else {
+            inc=1;
+        }
+
+        if(checkbox1.isSelected()==true){
+            A.setText("変数");
+        }else{
+            try {
+                a = Double.parseDouble(A.getText());
+                // 数値が正しく入力された場合の処理
+            } catch (NumberFormatException ex) {
+                // 数値以外の文字列が入力された場合のエラーメッセージ表示
+                JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
+                return;
+            }
+        }
+        if(checkbox2.isSelected()==true){
+            B.setText("変数");
+        }else{
+            try {
+                b = Double.parseDouble(B.getText());
+                // 数値が正しく入力された場合の処理
+            } catch (NumberFormatException ex) {
+                // 数値以外の文字列が入力された場合のエラーメッセージ表示
+                JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
+                return;
+            }
+        }
+        if(checkbox3.isSelected()==true){
+            C.setText("変数");
+        }else{
+            try {
+                c = Double.parseDouble(C.getText());
+                // 数値が正しく入力された場合の処理
+            } catch (NumberFormatException ex) {
+                // 数値以外の文字列が入力された場合のエラーメッセージ表示
+                JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
+                return;
+            }
+        }
+        if(checkbox4.isSelected()==true){
+            D.setText("変数");
+        }else{
+            try {
+                d = Double.parseDouble(D.getText());
+                // 数値が正しく入力された場合の処理
+            } catch (NumberFormatException ex) {
+                // 数値以外の文字列が入力された場合のエラーメッセージ表示
+                JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
+                return;
+            }
+        }
+        r=Double.parseDouble(R.getText());
+        try {
+            min_inch = Integer.parseInt(min_vari.getText());
+            max_inch = Integer.parseInt(max_vari.getText());
+            // 数値が正しく入力された場合の処理
+        } catch (NumberFormatException ex) {
+            // 数値以外の文字列が入力された場合のエラーメッセージ表示
+            JOptionPane.showMessageDialog(null,"数字以外のものを入力したり空白にしないでください");
+            return;
+        }
+
+
+
+        if (checkbox_data[0].is_checked) {
+            checkbox_data[0].name ="A";
+            fixedValue++;
+        }else{
+            checkbox_data[0].name =null;
+        }
+        if (checkbox_data[1].is_checked) {
+            checkbox_data[1].name ="B";
+            fixedValue++;
+        }else{
+            checkbox_data[1].name =null;
+        }
+        if (checkbox_data[2].is_checked) {
+            checkbox_data[2].name ="C";
+            fixedValue++;
+        }else{
+            checkbox_data[2].name =null;
+        }
+        if (checkbox_data[3].is_checked) {
+            checkbox_data[3].name ="D";
+            fixedValue++;
+        }else{
+            checkbox_data[3].name =null;
+        }
+
+        ProgressReceiver recv = new ProgressReceiver();
+        if (fixedValue == 0) {
+            JOptionPane.showMessageDialog(null,"変数を選択してください。");
+            return;
+        }else if(fixedValue==3){
+
+            maincal_3vari calnum = new maincal_3vari();
+            calnum.SetListen(recv);
+            calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
+
+        }else if(fixedValue==2) {
+            maincal_2vari calnum= new maincal_2vari();
+            calnum.SetListen(recv);
+            calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
+
+        }else if(fixedValue==1){
+            maincal  calnum =  new maincal();
+            calnum.SetListen(recv);
+            calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
+
+        }else if(fixedValue==4){
+            maincal_4vari calnum =new maincal_4vari();
+            calnum.SetListen(recv);
+            calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
+
+        }
+        String result ;
+        maxandmin maxandmin = new maxandmin();
+        maxandmin.setString(Filename);
+        out_max.setText(maxandmin.getMaxString());
+        out_min.setText(maxandmin.getMinString());
+        if(graphPanel != null){
+            graphPanel.repaint();
+        }
+
     }
 
 }

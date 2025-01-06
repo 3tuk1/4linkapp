@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-
 public class fileFrame extends JFrame {
     private JList<String> fileList;
     private cal_sim simulation = new cal_sim();
@@ -36,18 +35,18 @@ public class fileFrame extends JFrame {
 
     private double  NumCycle = 1, sin_high = 1 ;
     private JTextField range1,range2,Fin_length;
-    private DefaultListModel<String> listModel;
+    private DefaultListModel<String> fileModel;
     private GridBagConstraints gbc = new GridBagConstraints();
-    private JList<String> resultArea;
+    private JList<String> recordList;
     private JCheckBox checkBoxup,checkBoxdown;
 
     private static final AtomicBoolean isRunning = new AtomicBoolean(false);
     private static String Filename;
-    private static DefaultListModel<String> filelistmodel;
+    private static DefaultListModel<String> recordModel;
     private XYSeriesCollection xydata = new XYSeriesCollection();
     private XYSeries Fin_XY = new XYSeries("ヒレのｙ座標");
     private XYSeries sin_XY = new XYSeries("sin波形");
-    private JPanel chartpanel = createChartpanel();
+    private JPanel chartpanel = createChartPanel();
     private JPopupMenu resultpopup = new JPopupMenu();
     private JPopupMenu filepopup = new JPopupMenu();
     private double deviation = 0;
@@ -57,20 +56,20 @@ public class fileFrame extends JFrame {
     private JProgressBar bar = new JProgressBar();
     
     public void fileFrame(JPanel filepanel){
-        listModel = new DefaultListModel<>();
-        filelistmodel = new DefaultListModel<>();
-        fileList = new JList<>(listModel);
-        resultArea = new JList<>(filelistmodel);
+        fileModel = new DefaultListModel<>();
+        recordModel = new DefaultListModel<>();
+        fileList = new JList<>(fileModel);
+        recordList = new JList<>(recordModel);
         
         fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         fileList.addMouseListener(new FileMouse());
-        resultArea.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        resultArea.addMouseListener(new resultMouse());
-        addresultPopupMenuItem("シミュレーションに入力", new ActionListener() {
+        recordList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        recordList.addMouseListener(new RecordMouse());
+        AddResultPopupMenuItem("シミュレーションに入力", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(resultArea!= null) {
-                    String[] split = resultArea.getSelectedValue().split("[,:]");
+                if(recordList != null) {
+                    String[] split = recordList.getSelectedValue().split("[,:]");
                     MyFrame.simFrame.setValue(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Double.parseDouble(Fin_length.getText()));
                     MyFrame.tabbedpane.setSelectedIndex(2);
                 }else{
@@ -78,19 +77,19 @@ public class fileFrame extends JFrame {
                 }
             }
         });
-        addresultPopupMenuItem("グラフ化", new ActionListener() {
+        AddResultPopupMenuItem("グラフ化", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedresult = resultArea.getSelectedValue();
+                String selectedresult = recordList.getSelectedValue();
                 if(selectedresult != null) {
-                    setXY(selectedresult);
+                    AddToGraph(selectedresult);
                 }else {
                     System.out.println("nullSelect");
                 }
             }
         });
 
-        addfilePopupMenuItem("差のグラフを作成", new ActionListener() {
+        AddFilePopupMenuItem("差のグラフを作成", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectfile = fileList.getSelectedValue();
@@ -110,10 +109,10 @@ public class fileFrame extends JFrame {
         });
 
         JScrollPane filescrollPane = new JScrollPane(fileList);
-        JScrollPane outscrollPane = new JScrollPane(resultArea); // スクロールペインに追加
+        JScrollPane outscrollPane = new JScrollPane(recordList); // スクロールペインに追加
 
-        loadFiles("resultfile");
-        JPanel sortpanel = createsortpanel();
+        LoadFile("resultfile");
+        JPanel sortpanel = CreateControlPanel();
         gbc.fill = GridBagConstraints.BOTH;
 
         gbc.gridx = 0;
@@ -147,8 +146,7 @@ public class fileFrame extends JFrame {
         filepanel.add(chartpanel,gbc);
     }
 
-    private JPanel createChartpanel() {
-
+    private JPanel createChartPanel() {
         xydata.addSeries(Fin_XY);
         xydata.addSeries(sin_XY);
         XYDataset speeddata = xydata;
@@ -160,13 +158,10 @@ public class fileFrame extends JFrame {
         ValueAxis yAxis = new NumberAxis("ヒレの変位(mm)");
         yAxis.setLabelFont(new Font("Meiryo", Font.BOLD, 14)); // ラベルフォントの設定
         yAxis.setTickLabelFont(new Font("Meiryo", Font.PLAIN,12));
-        // レンダラ ⇒ これが全体のレンダラになる
+        // これが全体のレンダラーになる
         XYItemRenderer renderer = new StandardXYItemRenderer();
         // Plotを生成してチャートを表示する
         XYPlot xyPlot = new XYPlot(speeddata,xAxis,yAxis,renderer);
-
-
-
 
         // JFreeChartの作製
         JFreeChart jfreeChart = new JFreeChart("ヒレのy座標の変位", (Plot) xyPlot);
@@ -175,15 +170,12 @@ public class fileFrame extends JFrame {
         jfreeChart.getRenderingHints().put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         ChartPanel chartPanel = new ChartPanel(jfreeChart);
 
-
-
         JPanel panel = new JPanel();
-
         panel.add(chartPanel);
-
         return panel;
     }
-    public void setXY(String result){
+
+    public void AddToGraph(String result){
         double linkA,linkB,linkC,linkD,placeoffset=0;
         double cooHy_max = 0,cooHy_min = 0;
 
@@ -202,7 +194,6 @@ public class fileFrame extends JFrame {
         double theta;
         for(int i=0; i<361*NumCycle ; i++) {
             theta = Math.toRadians(i);
-            //sin_XY.add(Math.toDegrees(theta),((sin_high*Math.sin(theta-(Math.PI/2)))+sin_high*Math.sin(Math.PI/2))*cal_sim.shapescope);
             simulation.cal_sim(linkA,linkB,linkC,linkD, theta+theta_offset, Double.parseDouble(Fin_length.getText()));
             cal_sim.coodinate coo = simulation.getcoo();
             //初期化
@@ -213,6 +204,7 @@ public class fileFrame extends JFrame {
             if( placeoffset == 0){
                 placeoffset = coo.Hy /cal_sim.shapescope;
             }
+
             Fin_XY.add(Math.toDegrees(theta),(coo.Hy/cal_sim.shapescope)-placeoffset);
             if(cooHy_min>coo.Hy){
                 cooHy_min = coo.Hy;
@@ -229,10 +221,10 @@ public class fileFrame extends JFrame {
         deviation = (deviation/360)/sin_high;
         deviation_text.setText(String.format("偏差 : %.5f",deviation));
         chartpanel.repaint();
-
     }
 
-    ActionListener sortlistener = new ActionListener() {
+    // sort処理
+    ActionListener SortListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             String rangeStr = (String) rangecombo.getSelectedItem();
@@ -252,19 +244,18 @@ public class fileFrame extends JFrame {
                 range_high = range_low;
                 range_low = temp; 
             }
-            //範囲指定するところの値を取得する
 
-            //ソート未実装
+            //クイックソート
             if(up){
                 quicksort.setUporDown(true);
-                quicksort.quickSort(filelistmodel,0,filelistmodel.getSize(),select.getselectId(sortStr));
+                quicksort.quickSort(recordModel,0, recordModel.getSize(),select.getselectId(sortStr));
             }
             if(down){
                 quicksort.setUporDown(false);
-                quicksort.quickSort(filelistmodel,0,filelistmodel.getSize(),select.getselectId(sortStr));
+                quicksort.quickSort(recordModel,0, recordModel.getSize(),select.getselectId(sortStr));
             }
-            for (int i = filelistmodel.getSize() - 1; i >= 0; i--) {
-                String str = filelistmodel.getElementAt(i);
+            for (int i = recordModel.getSize() - 1; i >= 0; i--) {
+                String str = recordModel.getElementAt(i);
                 if(str == null){
                     JOptionPane.showMessageDialog(null,"null");
                     break;
@@ -275,29 +266,30 @@ public class fileFrame extends JFrame {
 
                 if((range_low>value)||(range_high<value)){
                     SwingUtilities.invokeLater(() -> {
-                        filelistmodel.removeElementAt(indexremove);//指定したインデックスを削除する！
+                        recordModel.removeElementAt(indexremove);//指定したインデックスを削除する！
                     });
                 }
             }
         }
     };
 
-    public static void setFileList(DefaultListModel<String> fileList) {
+    // レコードにメインスレッドでアクセスする
+    public static void DisplayResultRecord(DefaultListModel<String> resultRecord) {
         SwingUtilities.invokeLater(() ->{
-            filelistmodel=fileList;
+            recordModel =resultRecord;
         });
-
     }
 
-    ActionListener reloadlitener = new ActionListener() {
+    ActionListener ReloadListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            listModel.clear();
-            loadFiles("resultfile");
+            fileModel.clear();
+            LoadFile("resultfile");
         }
     };
 
-    ActionListener all_fill_cal = new ActionListener() {
+    // フォルダ内のファイルをすべてマージして正弦波との誤差を算出し新規ファイルに出力する
+    ActionListener CalcAllRecords = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             String selectedFile = fileList.getSelectedValue();
@@ -317,7 +309,7 @@ public class fileFrame extends JFrame {
         }
     };
 
-    private JPanel createsortpanel(){
+    private JPanel CreateControlPanel(){
         List<String> combodata = new ArrayList<String>();
 
         for(select sel : select.values()){
@@ -331,11 +323,11 @@ public class fileFrame extends JFrame {
         JPanel sortPanel = new JPanel(new GridBagLayout());
 
         JButton button = new JButton("ソート");
-        button.addActionListener(sortlistener);
+        button.addActionListener(SortListener);
         button.setPreferredSize(new Dimension(100, 30));
 
         JButton reloadbutton = new JButton("フォルダ再読み込み");
-        reloadbutton.addActionListener(reloadlitener);
+        reloadbutton.addActionListener(ReloadListener);
         reloadbutton.setPreferredSize(new Dimension(100, 30));
 
         JLabel range1_Label = new JLabel("範囲");
@@ -358,7 +350,7 @@ public class fileFrame extends JFrame {
         deviation_text.setHorizontalAlignment(JTextField.RIGHT);
 
         JButton all_file_button = new JButton("フォルダ全部読み");
-        all_file_button.addActionListener(all_fill_cal);
+        all_file_button.addActionListener(CalcAllRecords);
         all_file_button.setPreferredSize(new Dimension(100, 30));
 
 
@@ -458,16 +450,16 @@ public class fileFrame extends JFrame {
         return sortPanel;
     }
    
- private void loadFiles(String folderPath) {
+    private void LoadFile(String folderPath) {
         File folder = new File(folderPath);
         File[] listOfFiles = folder.listFiles();
 
         if (listOfFiles != null) {
             for (File file : listOfFiles) {
                 if (file.isFile()) {
-                    listModel.addElement(file.getName());
+                    fileModel.addElement(file.getName());
                 } else if (file.isDirectory()) {
-                    listModel.addElement(file.getName() + "/");
+                    fileModel.addElement(file.getName() + "/");
                 }
             }
         } else {
@@ -475,28 +467,21 @@ public class fileFrame extends JFrame {
         }
     }
 
-
-    private JMenuItem addresultPopupMenuItem(String name, ActionListener al){
-        //ポップアップの項目の追加
+    private void AddResultPopupMenuItem(String name, ActionListener al){
         JMenuItem item = new JMenuItem(name);
-        //項目にアクションリスナーの設定
         item.addActionListener(al);
-        //追加
         resultpopup.add(item);
-        return item;
     }
-    private JMenuItem addfilePopupMenuItem(String name, ActionListener al){
-        //ポップアップの項目の追加
+
+    private void AddFilePopupMenuItem(String name, ActionListener al){
         JMenuItem item = new JMenuItem(name);
-        //項目にアクションリスナーの設定
         item.addActionListener(al);
-        //追加
         filepopup.add(item);
-        return item;
     }
-    private void openfile(){
+
+    private void OpenFile(){
         if (isRunning.compareAndSet(false, true)) { // スレッドが実行中でなければ
-                filelistmodel.clear();
+                recordModel.clear();
                 Runnableoutfile runna = new Runnableoutfile();
                 Thread thread = new Thread(() -> {
                     try {
@@ -509,12 +494,12 @@ public class fileFrame extends JFrame {
         }
     }
 
-    public static DefaultListModel<String> getFilelistmodel() {
-        return filelistmodel;
+    public static DefaultListModel<String> getRecordModel() {
+        return recordModel;
     }
 
-    public static void setFilelistmodel(DefaultListModel<String> filelistmodel1) {
-        filelistmodel = filelistmodel1;
+    public static void setRecordModel(DefaultListModel<String> recordModel) {
+        fileFrame.recordModel = recordModel;
     }
 
     public  static String getFilename() {
@@ -535,21 +520,20 @@ public class fileFrame extends JFrame {
 
     }
 
-
-
     public class FileMouse extends MouseAdapter{
         public void mouseClicked(MouseEvent e){
             if (e.getClickCount() == 2) { // ダブルクリックされた場合
                 String selectedFile = fileList.getSelectedValue();
                 Filename  = "resultfile" + "\\"+selectedFile;
-                openfile();
+                OpenFile();
             }
             if(e.getButton() == MouseEvent.BUTTON3){
                 filepopup.show(e.getComponent(),e.getX(),e.getY());
             }
         }
     }
-    public class resultMouse extends MouseAdapter{
+
+    public class RecordMouse extends MouseAdapter{
 
         public void mouseClicked(MouseEvent e){
 
@@ -558,4 +542,5 @@ public class fileFrame extends JFrame {
             }
         }
     }
+
 }

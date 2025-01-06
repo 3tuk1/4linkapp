@@ -11,7 +11,7 @@ public class quicksort {
         // 再帰処理の終了条件を配列の先頭のインデックス=left が配列の最後のインデックス=right-1 以上に設定
         // →分割した配列の要素数が1個以下になったら再帰終了
         if (left >= right - 1) {
-            fileFrame.setFileList(filemo);
+            fileFrame.DisplayResultRecord(filemo);
             return;
         }
         // right-1のデータリストを参照してその番号のダブル値を取得する

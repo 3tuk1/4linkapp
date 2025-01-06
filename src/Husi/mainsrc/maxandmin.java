@@ -1,7 +1,7 @@
 package Husi.mainsrc;
 
 public class maxandmin {
-    inputresult inputresult = new inputresult();
+    inputResult inputresult = new inputResult();
     private  String minString = null;
     public  String getMinString() {
         return minString;
@@ -10,7 +10,8 @@ public class maxandmin {
     public  String getMaxString() {
         return maxString;
     }
-    public  void maxString(String Filename){
+
+    public  void setString(String Filename){
         String outresult = null;
         double maxamplitude = 0;
         double minamplitude = 1000;

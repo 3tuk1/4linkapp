@@ -2,7 +2,7 @@ package Husi.mainsrc;
 import javax.swing.SwingUtilities;
 
 
-
+// main関数
 public class Husi {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
