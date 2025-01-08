@@ -1,8 +1,8 @@
 package Husi.fileframe;
 
 import Husi.mainsrc.Progresslistener;
-import Husi.mainsrc.inputResult;
-import Husi.simframe.cal_sim;
+import Husi.mainsrc.InputResult;
+import Husi.simframe.Simulator;
 
 import javax.swing.*;
 import java.io.*;
@@ -10,12 +10,12 @@ import java.io.*;
 
 
 
-public class all_diffe {
+public class AllDiffe {
     private String filename;
     private String copyfilename;
     private double Fin_lengh;
 
-    private  cal_sim simulation = new cal_sim();
+    private Simulator simulation = new Simulator();
     private int[] prog = new int[2];
 
     private Progresslistener lisner ;
@@ -48,7 +48,7 @@ public class all_diffe {
     private void make_cope(){
         filename = "resultfile" + "\\" + filename;
 
-        inputResult make =  new inputResult();
+        InputResult make =  new InputResult();
         copyfilename = make.makefile();
     }
 
@@ -84,13 +84,13 @@ public class all_diffe {
         double theta_offset = Math.acos((Math.pow(linkA+linkB,2)+Math.pow(linkD,2)-Math.pow(linkC,2))/(2*(linkA+linkB)*linkD));
         for(int i = 0; i <= 360 ; i++){
             double theta = Math.toRadians(i);
-            simulation.Htocenter(linkA, linkB, linkC, linkD);
-            simulation.cal_sim(linkA,linkB,linkC,linkD, theta+theta_offset, Fin_length);
-            cal_sim.coodinate coo = simulation.getcoo();
+            simulation.HtoCenter(linkA, linkB, linkC, linkD);
+            simulation.calculate(linkA,linkB,linkC,linkD, theta+theta_offset, Fin_length);
+            Simulator.coodinate coo = simulation.getCoo();
             if(i == 0){
-                placeoffset = coo.Hy / cal_sim.shapescope;
+                placeoffset = coo.Hy / Simulator.SHAPESCOPE;
             }
-            Calculation_results[i] = (coo.Hy/cal_sim.shapescope)-placeoffset;
+            Calculation_results[i] = (coo.Hy/ Simulator.SHAPESCOPE)-placeoffset;
 
         }
         return Calculation_results;

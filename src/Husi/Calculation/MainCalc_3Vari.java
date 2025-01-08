@@ -1,7 +1,7 @@
 package Husi.Calculation;
 
 
-public class maincal_3vari extends maincal {
+public class MainCalc_3Vari extends MainCalc {
     @Override
     public void run(){
         listen.onProgressMax((int)Math.pow(((max_inch-min_inch)*(1/inc)),3));

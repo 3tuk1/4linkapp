@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class creategraph {
+public class CreateGraph {
     private XYSeries graph =new XYSeries("差のグラフ");;
     private String  Filename;
 
@@ -16,7 +16,7 @@ public class creategraph {
         this.Filename = "resultfile//"+Filename;
         String line;
     }
-    public   XYSeries creategraph(){
+    public XYSeries creategraph(){
         int count_line =0;
         String line;
         try (BufferedReader reader = new BufferedReader(new FileReader(Filename))) {

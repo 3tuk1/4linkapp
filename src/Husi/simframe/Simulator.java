@@ -1,16 +1,12 @@
 package Husi.simframe;
 
-import java.awt.Point;
-
-public class cal_sim {
-    final public static int shapescope = 10;
+public class Simulator {
+    final public static int SHAPESCOPE = 10;
     coodinate coo = new coodinate();
     double thetaAD;
     double theta_variable = 0;
-
-    Animation animation ;
     
-    public coodinate cal_sim(double A,double B,double C,double D,double theta,double H){
+    public void calculate(double A, double B, double C, double D, double theta, double H){
         thetaAD += theta_variable;
         //リンク機構のそれぞれの角度を求める
         coo.Dx = 0;
@@ -18,7 +14,6 @@ public class cal_sim {
 
         coo.Ax = coo.Dx + D * Math.cos(thetaAD);
         coo.Ay = coo.Dy + D * Math.sin(thetaAD);
-        
 
         coo.Bx = A*Math.cos(theta+thetaAD-Math.PI)+coo.Ax;
         coo.By = A*Math.sin(theta+thetaAD-Math.PI)+coo.Ay;
@@ -34,12 +29,8 @@ public class cal_sim {
         coo.Hx = coo.Dx + H * Math.cos(Htheta);
         coo.Hy = coo.Dy + H * Math.sin(Htheta);
 
-
         //定数倍して図形を大きくする
         scope();
-
-        
-        return coo;
     }
 
     public void setThetaAD(double thetaAD) {
@@ -47,7 +38,8 @@ public class cal_sim {
     }
 
     public void setTheta_variable(double value){this.theta_variable = value;}
-    public class coodinate{
+
+    public static class coodinate {
         double Ax,Ay;
         double Bx,By;
         double Cx,Cy;
@@ -55,49 +47,34 @@ public class cal_sim {
         double Hx;
         public double Hy;
     }
+
     private double pow(double num){
         return Math.pow(num, 2);
     }
+
     private void scope(){
-        
-        coo.Ax *= shapescope;
-        coo.Ay *= shapescope;
-        coo.Bx *= shapescope;
-        coo.By *= shapescope;
-        coo.Cx *= shapescope;
-        coo.Cy *= shapescope;
-        coo.Dx *= shapescope;
-        coo.Dy *= shapescope;
-        coo.Hx *= shapescope;
-        coo.Hy *= shapescope;
+        coo.Ax *= SHAPESCOPE;
+        coo.Ay *= SHAPESCOPE;
+        coo.Bx *= SHAPESCOPE;
+        coo.By *= SHAPESCOPE;
+        coo.Cx *= SHAPESCOPE;
+        coo.Cy *= SHAPESCOPE;
+        coo.Dx *= SHAPESCOPE;
+        coo.Dy *= SHAPESCOPE;
+        coo.Hx *= SHAPESCOPE;
+        coo.Hy *= SHAPESCOPE;
     }
-    public void setDxDy(Point point){
-        double x= point.getX();
-        double y= point.getY();
-        coo.Ax += x;
-        coo.Ay += y;
-        coo.Bx += x;
-        coo.By += y;
-        coo.Cx += x;
-        coo.Cy += y;
-        coo.Dx += x;
-        coo.Dy += y;
-        coo.Hx += x;
-        coo.Hy += y;
-    }
-    public void Htocenter(double A,double B,double C,double D){
+
+    public void HtoCenter(double A, double B, double C, double D){
         //上下水平化の修正
-        double acosValuemin = Math.acos((getSquare(D) + getSquare(C) - getSquare(B-A)) / (2.0 * D * C));
-        double acosValusemax = Math.acos((getSquare(D) + getSquare(C) - getSquare(A+B)) / (2.0 * D * C));
+        double acosValueMin = Math.acos((pow(D) + pow(C) - pow(B-A)) / (2.0 * D * C));
+        double acosValuseMax = Math.acos((pow(D) + pow(C) - pow(A+B)) / (2.0 * D * C));
 
-        thetaAD = (Math.abs(acosValusemax)+Math.abs(acosValuemin))/2-Math.PI;
+        thetaAD = (Math.abs(acosValuseMax)+Math.abs(acosValueMin))/2-Math.PI;
         
     }
-    public coodinate getcoo(){
-        return coo;
-    }
 
-    private double getSquare(double num){
-        return Math.pow(num,2);
+    public coodinate getCoo(){
+        return coo;
     }
 }

@@ -1,11 +1,11 @@
 package Husi.Calculation;
 
 import Husi.mainsrc.Progresslistener;
-import Husi.mainsrc.inputResult;
+import Husi.mainsrc.InputResult;
 import Husi.mainsrc.MyFrame.checkbox_data;
 //変数が一つの時の計算
-public class maincal implements Runnable{
-    inputResult inputresult = new inputResult();
+public class MainCalc implements Runnable{
+    InputResult inputresult = new InputResult();
     double linkA, linkB, linkC, linkD;
     double r,min_inch,max_inch,inc,angleERR;
     checkbox_data[] checkbox_data;
@@ -40,7 +40,7 @@ public class maincal implements Runnable{
         double amplitude=0;
         if(r>(A+D)){
             if (A + C <= B + D && A + D <= B + C && A + B <= C + D){
-                amplitude= amplitudeMethod.hurehaba(A, B, C, D);
+                amplitude= AmplitudeMethod.hurehaba(A, B, C, D);
                 if(AngleError.solve(A, B, C, D,angleERR)){
                     if(r>(A+B)){
                         inputresult.inputResult(A, B, C, D, amplitude,Filename);
@@ -55,7 +55,7 @@ public class maincal implements Runnable{
         double amplitude=0;
         if(r==D){ // 中心に存在するか
             if (A + C <= B + D && A + D <= B + C && A + B <= C + D){
-                amplitude = amplitudeMethod.hurehaba(A,B,C,D);
+                amplitude = AmplitudeMethod.hurehaba(A,B,C,D);
                 if(AngleError.solve(A, B, C, D,angleERR)) {
                     if (r > (A + B)) {
                         inputresult.inputResult(A, B, C, D, amplitude,Filename);

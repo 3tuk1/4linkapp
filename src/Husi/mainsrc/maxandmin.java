@@ -1,7 +1,7 @@
 package Husi.mainsrc;
 
-public class maxandmin {
-    inputResult inputresult = new inputResult();
+public class MaxAndMin {
+    InputResult inputresult = new InputResult();
     private  String minString = null;
     public  String getMinString() {
         return minString;

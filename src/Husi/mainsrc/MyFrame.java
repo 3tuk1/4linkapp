@@ -17,7 +17,7 @@ public class MyFrame extends JFrame implements ActionListener {
     public JPanel graphPanel;
     private JLabel out_max;
     private JLabel out_min;
-    inputResult inputresult = new inputResult();
+    InputResult inputresult = new InputResult();
     GridBagConstraints gbc = new GridBagConstraints();
     JPanel mainpanel = new JPanel(new GridBagLayout());
     JPanel filepanel = new JPanel(new GridBagLayout());
@@ -43,7 +43,7 @@ public class MyFrame extends JFrame implements ActionListener {
 
         tabbedpane = new JTabbedPane();
 
-        createimagePanel();
+        createImagePanel();
 
         JPanel panel = createLinkSettingPanel();
         JPanel input2Panel = createCalcSettingPanel();
@@ -79,8 +79,8 @@ public class MyFrame extends JFrame implements ActionListener {
         gbc.weightx = 1;
         gbc.weighty = 1;
 
-        fileFrame fileFrame = new fileFrame();
-        fileFrame.fileFrame(filepanel);
+        FileFrame fileFrame = new FileFrame();
+        fileFrame.initUI(filepanel);
 
         simFrame = new simFrame();
         simFrame.simFrame(simpanel);
@@ -273,7 +273,7 @@ public class MyFrame extends JFrame implements ActionListener {
     }
 
     // 説明画像を表示するパネルの作製
-    private void createimagePanel(){
+    private void createImagePanel(){
         
         ImageIcon imagelinknomal = new ImageIcon(getClass().getResource("/image/四節リンク機構図(通常).png"));
         ImageIcon imagelinkmin = new ImageIcon(getClass().getResource("/image/四節リンク機構図(最短).png"));
@@ -459,28 +459,28 @@ public class MyFrame extends JFrame implements ActionListener {
             return;
         }else if(fixedValue==3){
 
-            maincal_3vari calnum = new maincal_3vari();
+            MainCalc_3Vari calnum = new MainCalc_3Vari();
             calnum.SetListen(recv);
             calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
 
         }else if(fixedValue==2) {
-            maincal_2vari calnum= new maincal_2vari();
+            MainCalc_2Vari calnum= new MainCalc_2Vari();
             calnum.SetListen(recv);
             calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
 
         }else if(fixedValue==1){
-            maincal  calnum =  new maincal();
+            MainCalc calnum =  new MainCalc();
             calnum.SetListen(recv);
             calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
 
         }else if(fixedValue==4){
-            maincal_4vari calnum =new maincal_4vari();
+            MainCalc_4Vari calnum =new MainCalc_4Vari();
             calnum.SetListen(recv);
             calnum.Grashoftheorem(a, b, c, d, r, checkbox_data, min_inch, max_inch, inc, Filename,Double.parseDouble(angleERR.getText()),checkbox7.isSelected());
 
         }
         String result ;
-        maxandmin maxandmin = new maxandmin();
+        MaxAndMin maxandmin = new MaxAndMin();
         maxandmin.setString(Filename);
         out_max.setText(maxandmin.getMaxString());
         out_min.setText(maxandmin.getMinString());

@@ -1,6 +1,6 @@
 package Husi.simframe;
 
-import Husi.simframe.cal_sim.coodinate;
+import Husi.simframe.Simulator.coodinate;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -32,7 +32,7 @@ public class simFrame extends JFrame {
     private JTextField A, B, C, D, H ,r;
     private JSlider offsetslider;
     private JSlider link_place_slider;
-    private double thetaoffset=0;
+    private double thetaOffset =0;
 
     private double theta_angle_cal = 0;
     private  double linkA = 5;
@@ -43,16 +43,16 @@ public class simFrame extends JFrame {
     private double placeoffset=0;
     private JCheckBox checkboxsetAD,lenghoutput;
     private double abLength,bcLength,cdLength,daLength;
-    private cal_sim cal = new cal_sim();
+    private Simulator simulator = new Simulator();
 
     private JTextField dis_DA_x,dis_DA_y,dis_DA_theta;
-    DrawPanel DrawPanel = new DrawPanel();
+    CreateDrawPanel CreateDrawPanel = new CreateDrawPanel();
 
     private XYSeries xySeries = new XYSeries("teko");
 
     public void simFrame(JPanel simPanel){
-        JPanel InputPanel = createpanel();
-        JPanel speedChartPanel = createChartpanel();
+        JPanel InputPanel = CreateControlPanel();
+        JPanel speedChartPanel = createChartPanel();
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx = 0;
@@ -60,7 +60,7 @@ public class simFrame extends JFrame {
         gbc.gridheight = 2;
         gbc.weightx = 5;
         gbc.weighty = 1;
-        simPanel.add(DrawPanel,gbc);
+        simPanel.add(CreateDrawPanel,gbc);
 
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 1;
@@ -78,50 +78,51 @@ public class simFrame extends JFrame {
         gbc.weighty = 1;
         simPanel.add(speedChartPanel,gbc);
     }
+
     private Timer timer;  // Timerを追加
+
     private double ani_theta = 0; // アニメーション用の角度
 
 
     ActionListener start = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            check=false;
-            
             if (timer == null || !timer.isRunning()) {
-                setxy(-1);//グラフのデータセットの初期化
+                setXY(-1);//グラフのデータセットの初期化
                 timer = new Timer(10, new ActionListener() { 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        updateAnimation(); 
+                        updateAnimation();
+
+                        ani_theta += 1; // 角度を増加させてアニメーション
+                        if (ani_theta >= 361*2) {
+                            ani_theta = 0; // 角度をリセット
+                            timer.stop(); // 1サイクル後にアニメーションを停止
+                        }
                     }
                 });
                 timer.start(); // タイマーを開始
             }
         }
     };
+
+    // パネルの中心点の取得
     public Point getCenterPoint(JPanel panel) {
         int centerX = panel.getWidth() / 2;
         int centerY = panel.getHeight() / 2;
         return new Point(centerX, centerY);
     }
 
+    private double theta=0;
+
     private void updateAnimation() {
-
-        settheta(ani_theta);
-        linkcal();
-        lenght();
-
-              
-        DrawPanel.repaint(); 
-        ani_theta += 1; // 角度を増加させてアニメーション
-        if (ani_theta >= 361*2) {
-            ani_theta = 0; // 角度をリセット
-            timer.stop(); // 1サイクル後にアニメーションを停止
-
-        }
+        theta = Math.toRadians(ani_theta);
+        CalLink();
+        CalcLinkLength();
+        CreateDrawPanel.repaint();
     }
 
-    class DrawPanel extends JPanel{
+    class CreateDrawPanel extends JPanel{
 
         @Override
         protected void paintComponent(Graphics g) {//四本線を描画する
@@ -161,9 +162,9 @@ public class simFrame extends JFrame {
                 g2d.setStroke(stroke);
                 Line2D.Double lineDH = new Line2D.Double(offsetx+coo.Hx, canvasHeight - coo.Hy, offsetx+coo.Dx, canvasHeight - coo.Dy);
                 g2d.draw(lineDH);
-                double diameter = 2*radius*cal_sim.shapescope;
+                double diameter = 2*radius* Simulator.SHAPESCOPE;
                 //カプセル内視鏡の描画
-                Ellipse2D.Double capsule = new Ellipse2D.Double(offsetx+getCenterPoint(DrawPanel).getX()- diameter, canvasHeight - getCenterPoint(DrawPanel).getY()-diameter/2, diameter, diameter);
+                Ellipse2D.Double capsule = new Ellipse2D.Double(offsetx+getCenterPoint(CreateDrawPanel).getX()- diameter, canvasHeight - getCenterPoint(CreateDrawPanel).getY()-diameter/2, diameter, diameter);
                 g2d.draw(capsule);
 
                 //反対側の四節リンク機構
@@ -177,25 +178,23 @@ public class simFrame extends JFrame {
 
                 if(lenghoutput.isSelected()) {
                     // 線分ABの長さを表示
-                    g2d.drawString(String.format("Aの長さ: %.2f", (abLength / cal_sim.shapescope)), (int) (offsetx+((coo.Ax + coo.Bx) / 2)), (int) ((canvasHeight - ((coo.Ay + coo.By) / 2)) + 20));
-
+                    g2d.drawString(String.format("Aの長さ: %.2f", (abLength / Simulator.SHAPESCOPE)), (int) (offsetx+((coo.Ax + coo.Bx) / 2)), (int) ((canvasHeight - ((coo.Ay + coo.By) / 2)) + 20));
 
                     // 線分BCの長さを表示
-                    g2d.drawString(String.format("Bの長さ: %.2f", bcLength / cal_sim.shapescope), (int) (offsetx+((coo.Cx + coo.Bx) / 2)), (int) (canvasHeight - ((coo.Cy + coo.By) / 2) + 20));
-
+                    g2d.drawString(String.format("Bの長さ: %.2f", bcLength / Simulator.SHAPESCOPE), (int) (offsetx+((coo.Cx + coo.Bx) / 2)), (int) (canvasHeight - ((coo.Cy + coo.By) / 2) + 20));
 
                     // 線分CDの長さを表示
-                    g2d.drawString(String.format("Cの長さ: %.2f", cdLength / cal_sim.shapescope), (int) (offsetx+((coo.Cx + coo.Dx) / 2)), (int) (canvasHeight - ((coo.Dy + coo.Cy) / 2) + 20));
-
+                    g2d.drawString(String.format("Cの長さ: %.2f", cdLength / Simulator.SHAPESCOPE), (int) (offsetx+((coo.Cx + coo.Dx) / 2)), (int) (canvasHeight - ((coo.Dy + coo.Cy) / 2) + 20));
 
                     // 線分DAの長さを表示
-                    g2d.drawString(String.format("Dの長さ: %.2f", daLength / cal_sim.shapescope), (int) (offsetx+((coo.Ax + coo.Dx) / 2)), (int) (canvasHeight - ((coo.Ay + coo.Dy) / 2) + 20));
+                    g2d.drawString(String.format("Dの長さ: %.2f", daLength / Simulator.SHAPESCOPE), (int) (offsetx+((coo.Ax + coo.Dx) / 2)), (int) (canvasHeight - ((coo.Ay + coo.Dy) / 2) + 20));
                 }
             }
         }
 
     }
-    private void lenght(){
+
+    private void CalcLinkLength(){
         // 線分ABの長さを計算
         abLength = Math.sqrt(Math.pow(coo.Bx - coo.Ax, 2) + Math.pow(coo.By - coo.Ay, 2));
         // 線分BCの長さを計算
@@ -205,22 +204,14 @@ public class simFrame extends JFrame {
         // 線分DAの長さを計算
         daLength = Math.sqrt(Math.pow(coo.Ax - coo.Dx, 2) + Math.pow(coo.Ay - coo.Dy, 2));
         double x,y;
-        x = (Math.sqrt(Math.pow(coo.Ax - coo.Dx, 2)))/cal_sim.shapescope;
-        y = (Math.sqrt(Math.pow(coo.Ay - coo.Dy, 2)))/cal_sim.shapescope;
+        x = (Math.sqrt(Math.pow(coo.Ax - coo.Dx, 2)))/ Simulator.SHAPESCOPE;
+        y = (Math.sqrt(Math.pow(coo.Ay - coo.Dy, 2)))/ Simulator.SHAPESCOPE;
         dis_DA_x.setText(String.valueOf(x));
         dis_DA_y.setText(String.valueOf(y));
         dis_DA_theta.setText(String.valueOf(Math.toDegrees(Math.atan2(y,x))));
     }
 
-
-    private double theta=0;
-        
-    public void settheta(double value){
-            value = Math.toRadians(value);
-            theta = value;
-    }
-    private boolean check=false;    
-    private void linkcal(){//四つの点を作成する
+    private void CalLink(){//四つの点を作成する
         linkA_cal=Double.parseDouble(A.getText());
         linkB_cal =Double.parseDouble(B.getText());
         linkC_cal =Double.parseDouble(C.getText());
@@ -228,23 +219,22 @@ public class simFrame extends JFrame {
         Finlengh_cal =Double.parseDouble(H.getText());
         radius = Double.parseDouble(r.getText());
 
-        if(!check&&checkboxsetAD.isSelected()){
-            cal.Htocenter(linkA_cal, linkB_cal, linkC_cal, linkD_cal);
+        if(checkboxsetAD.isSelected()){
+            simulator.HtoCenter(linkA_cal, linkB_cal, linkC_cal, linkD_cal);
         }else{
-            cal.setThetaAD(-Math.PI);
+            simulator.setThetaAD(-Math.PI);
         }
         //このtheta オフセットによりリンクのヒレの水平化に成功
-        thetaoffset = Math.acos((Math.pow(linkA_cal+ linkB_cal,2)+Math.pow(linkD_cal,2)-Math.pow(linkC_cal,2))/(2*(linkA_cal+ linkB_cal)* linkD_cal));
-        theta = theta + thetaoffset;
+        thetaOffset = Math.acos((Math.pow(linkA_cal+ linkB_cal,2)+Math.pow(linkD_cal,2)-Math.pow(linkC_cal,2))/(2*(linkA_cal+ linkB_cal)* linkD_cal));
+        theta = theta + thetaOffset;
         
+        simulator.calculate(linkA_cal, linkB_cal, linkC_cal, linkD_cal, theta, Finlengh_cal);
         
-        cal.cal_sim(linkA_cal, linkB_cal, linkC_cal, linkD_cal, theta, Finlengh_cal);
-        //cal.setDxDy(getCenterPoint(DrawPanel));
-        
-        coo = cal.getcoo();
-        setDxDy(getCenterPoint(DrawPanel));
-        setxy(coo.Hy);
+        coo = simulator.getCoo();
+        setDxDy(getCenterPoint(CreateDrawPanel));
+        setXY(coo.Hy);
     }
+
     public void setDxDy(Point point){
         double x= point.getX();
         double y= point.getY();
@@ -259,7 +249,9 @@ public class simFrame extends JFrame {
         coo.Hx += x;
         coo.Hy += y;
     }
-    public void setValue(double linkA, double linkB, double linkC, double linkD, double Fin_lengh){
+
+    // ファイルタブからリンクの情報を取得、表示
+    public void setLinkParams(double linkA, double linkB, double linkC, double linkD, double Fin_lengh){
         A.setText(String.valueOf(linkA));
         B.setText(String.valueOf(linkB));
         C.setText(String.valueOf(linkC));
@@ -267,11 +259,10 @@ public class simFrame extends JFrame {
         H.setText(String.valueOf(Fin_lengh));
     }
 
-
-    private JPanel createpanel() {
-        JPanel inputepanel = new JPanel(new GridLayout(6, 3, 10, 10));
-        JPanel settingpanel = new JPanel(new GridLayout(6,2,10,10));
-        JPanel multipanel = new JPanel(new GridBagLayout());
+    private JPanel CreateControlPanel() {
+        JPanel inputPanel = new JPanel(new GridLayout(6, 3, 10, 10));
+        JPanel settingPanel = new JPanel(new GridLayout(6,2,10,10));
+        JPanel multiPanel = new JPanel(new GridBagLayout());
         JLabel A_label = new JLabel("節Aの長さ");
         A = new JTextField(String.valueOf(linkA),10);
         A.setEditable(true);
@@ -297,7 +288,6 @@ public class simFrame extends JFrame {
         r = new JTextField("18",10);
         r.setHorizontalAlignment(JTextField.RIGHT);
 
-
         JButton button = new JButton("start");
         button.addActionListener(start);
         button.setPreferredSize(new Dimension(100, 30));
@@ -309,20 +299,14 @@ public class simFrame extends JFrame {
 
         JLabel link_place_label = new JLabel("linkの位置調整");
 
-
         offsetslider = new JSlider();
         offsetslider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider) e.getSource();
-                int offsetvalue = source.getValue();
-                setoffset(offsetvalue);
-                settheta(ani_theta);
-                linkcal();
-                lenght();
-
-
-                DrawPanel.repaint();
+                int offsetValue = source.getValue();
+                offsetx = (offsetValue*10)-300;
+                updateAnimation();
             }
         });
 
@@ -331,15 +315,10 @@ public class simFrame extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider) e.getSource();
-                int offsetvalue = source.getValue();
-                theta_angle_cal = (offsetvalue  / 10 )  ;
-                cal.setTheta_variable(Math.toRadians(theta_angle_cal));
-                settheta(ani_theta);
-                linkcal();
-                lenght();
-
-
-                DrawPanel.repaint();
+                int offsetValue = source.getValue();
+                theta_angle_cal = offsetValue / 10.0;
+                simulator.setTheta_variable(Math.toRadians(theta_angle_cal));
+                updateAnimation();
             }
         });
 
@@ -358,43 +337,41 @@ public class simFrame extends JFrame {
         dis_DA_theta.setHorizontalAlignment(JTextField.RIGHT);
         dis_DA_theta.setEditable(false);
 
+        inputPanel.add(A_label);
+        inputPanel.add(A);
 
+        inputPanel.add(B_label);
+        inputPanel.add(B);
 
-        inputepanel.add(A_label);
-        inputepanel.add(A);
+        inputPanel.add(C_label);
+        inputPanel.add(C);
 
-        inputepanel.add(B_label);
-        inputepanel.add(B);
+        inputPanel.add(D_label);
+        inputPanel.add(D);
 
-        inputepanel.add(C_label);
-        inputepanel.add(C);
+        inputPanel.add(H_label);
+        inputPanel.add(H);
 
-        inputepanel.add(D_label);
-        inputepanel.add(D);
+        inputPanel.add(R_label);
+        inputPanel.add(r);
 
-        inputepanel.add(H_label);
-        inputepanel.add(H);
+        settingPanel.add(checkboxsetAD);
+        settingPanel.add(lenghoutput);
 
-        inputepanel.add(R_label);
-        inputepanel.add(r);
+        settingPanel.add(offset_label);
+        settingPanel.add(offsetslider);
 
-        settingpanel.add(checkboxsetAD);
-        settingpanel.add(lenghoutput);
+        settingPanel.add(link_place_label);
+        settingPanel.add(link_place_slider);
 
-        settingpanel.add(offset_label);
-        settingpanel.add(offsetslider);
+        settingPanel.add(dis_x_label);
+        settingPanel.add(dis_DA_x);
 
-        settingpanel.add(link_place_label);
-        settingpanel.add(link_place_slider);
+        settingPanel.add(dis_y_label);
+        settingPanel.add(dis_DA_y);
 
-        settingpanel.add(dis_x_label);
-        settingpanel.add(dis_DA_x);
-
-        settingpanel.add(dis_y_label);
-        settingpanel.add(dis_DA_y);
-
-        settingpanel.add(dis_theta_label);
-        settingpanel.add(dis_DA_theta);
+        settingPanel.add(dis_theta_label);
+        settingPanel.add(dis_DA_theta);
 
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
@@ -402,7 +379,7 @@ public class simFrame extends JFrame {
         gbc.gridheight = 1;
         gbc.weightx = 1;
         gbc.weighty = 4;
-        multipanel.add(inputepanel,gbc);
+        multiPanel.add(inputPanel,gbc);
 
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
@@ -410,26 +387,22 @@ public class simFrame extends JFrame {
         gbc.gridheight = 1;
         gbc.weightx = 1;
         gbc.weighty = 1;
-        multipanel.add(settingpanel,gbc);
+        multiPanel.add(settingPanel,gbc);
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridheight = 1;
         gbc.weightx = 1;
         gbc.weighty = 2;
-        multipanel.add(button,gbc);
+        multiPanel.add(button,gbc);
 
-        return multipanel;
+        return multiPanel;
     }
 
-    private void setoffset(int offset){
-        offsetx = (offset*10)-300;
-    }
-
-    private JPanel createChartpanel(){
-        XYSeriesCollection xydata = new XYSeriesCollection();
-        xydata.addSeries(xySeries);
-        XYDataset speeddata = xydata;
+    private JPanel createChartPanel(){
+        XYSeriesCollection XYData = new XYSeriesCollection();
+        XYData.addSeries(xySeries);
+        XYDataset speedData = XYData;
 
         // 軸を生成
         ValueAxis xAxis = new NumberAxis("クランクの位相(° )");
@@ -442,10 +415,7 @@ public class simFrame extends JFrame {
         // レンダラ ⇒ これが全体のレンダラになる
         XYItemRenderer renderer = new StandardXYItemRenderer();
         // Plotを生成してチャートを表示する
-        XYPlot xyPlot = new XYPlot(speeddata,xAxis,yAxis,renderer);
-
-
-
+        XYPlot xyPlot = new XYPlot(speedData,xAxis,yAxis,renderer);
 
         // JFreeChartの作製
         JFreeChart jfreeChart = new JFreeChart("ヒレのy座標の変位", (Plot) xyPlot);
@@ -454,21 +424,19 @@ public class simFrame extends JFrame {
         jfreeChart.getRenderingHints().put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         ChartPanel chartPanel = new ChartPanel(jfreeChart);
 
-        //chartPanel.setPreferredSize(new Dimension(700, 500));
-
-
         JPanel panel = new JPanel();
 
         panel.add(chartPanel);
 
         return panel;
     }
-    private void setxy(double place) {
+
+    private void setXY(double place) {
         if(placeoffset == 0){
-            placeoffset = place /cal_sim.shapescope;
+            placeoffset = place / Simulator.SHAPESCOPE;
         }
-        //thetaはradのため度に変換
-        xySeries.add(Math.toDegrees(theta-thetaoffset),(place/cal_sim.shapescope)-placeoffset);
+        //thetaはradのためdegに変換
+        xySeries.add(Math.toDegrees(theta- thetaOffset),(place/ Simulator.SHAPESCOPE)-placeoffset);
         if(place==-1){
             xySeries.clear();
             placeoffset = 0;

@@ -2,16 +2,17 @@ package Husi.fileframe;
 
 import javax.swing.*;
 
-public class quicksort {
+public class Quicksort {
     static boolean up;
     public static void setUporDown(boolean up){
-        quicksort.up = up;
+        Quicksort.up = up;
     }
+
     static void quickSort(DefaultListModel<String> filemo, int left, int right,int sort) {
         // 再帰処理の終了条件を配列の先頭のインデックス=left が配列の最後のインデックス=right-1 以上に設定
         // →分割した配列の要素数が1個以下になったら再帰終了
         if (left >= right - 1) {
-            fileFrame.DisplayResultRecord(filemo);
+            FileFrame.DisplayResultRecord(filemo);
             return;
         }
         // right-1のデータリストを参照してその番号のダブル値を取得する

@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 import javax.swing.JOptionPane;
 
-public class inputResult {
+public class InputResult {
 
     public void inputResult(double A, double B, double C, double D, double amplitude, String Filename){
         DecimalFormat df = new DecimalFormat("#.00");

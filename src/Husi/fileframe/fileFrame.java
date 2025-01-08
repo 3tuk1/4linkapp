@@ -2,7 +2,7 @@ package Husi.fileframe;
 
 import Husi.mainsrc.MyFrame;
 import Husi.mainsrc.Progresslistener;
-import Husi.simframe.cal_sim;
+import Husi.simframe.Simulator;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-public class fileFrame extends JFrame {
+public class FileFrame extends JFrame {
     private JList<String> fileList;
-    private cal_sim simulation = new cal_sim();
+    private Simulator simulation = new Simulator();
     private JComboBox rangecombo;
     private JComboBox sortcombo;
 
@@ -51,11 +51,11 @@ public class fileFrame extends JFrame {
     private JPopupMenu filepopup = new JPopupMenu();
     private double deviation = 0;
     private JTextField deviation_text;
-    public  all_diffe ALL = new all_diffe();
+    public AllDiffe ALL = new AllDiffe();
 
     private JProgressBar bar = new JProgressBar();
     
-    public void fileFrame(JPanel filepanel){
+    public void initUI(JPanel filepanel){
         fileModel = new DefaultListModel<>();
         recordModel = new DefaultListModel<>();
         fileList = new JList<>(fileModel);
@@ -70,7 +70,7 @@ public class fileFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(recordList != null) {
                     String[] split = recordList.getSelectedValue().split("[,:]");
-                    MyFrame.simFrame.setValue(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Double.parseDouble(Fin_length.getText()));
+                    MyFrame.simFrame.setLinkParams(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Double.parseDouble(Fin_length.getText()));
                     MyFrame.tabbedpane.setSelectedIndex(2);
                 }else{
                     JOptionPane.showMessageDialog(null,"値を選択してください!");
@@ -95,7 +95,7 @@ public class fileFrame extends JFrame {
                 String selectfile = fileList.getSelectedValue();
                 System.out.println(selectfile);
                 if(selectfile != null){
-                    creategraph GR = new creategraph();
+                    CreateGraph GR = new CreateGraph();
                     GR.setFilename(selectfile);
                         Fin_XY.clear();
                         sin_XY.clear();
@@ -189,30 +189,30 @@ public class fileFrame extends JFrame {
         linkB = Double.parseDouble(split[1]);
         linkC = Double.parseDouble(split[2]);
         linkD = Double.parseDouble(split[3]);
-        simulation.Htocenter(linkA, linkB, linkC, linkD);
+        simulation.HtoCenter(linkA, linkB, linkC, linkD);
         double theta_offset = Math.acos((Math.pow(linkA+linkB,2)+Math.pow(linkD,2)-Math.pow(linkC,2))/(2*(linkA+linkB)*linkD));
         double theta;
         for(int i=0; i<361*NumCycle ; i++) {
             theta = Math.toRadians(i);
-            simulation.cal_sim(linkA,linkB,linkC,linkD, theta+theta_offset, Double.parseDouble(Fin_length.getText()));
-            cal_sim.coodinate coo = simulation.getcoo();
+            simulation.calculate(linkA,linkB,linkC,linkD, theta+theta_offset, Double.parseDouble(Fin_length.getText()));
+            Simulator.coodinate coo = simulation.getCoo();
             //初期化
             if(theta == 0){
                 cooHy_min = coo.Hy;
                 cooHy_max = coo.Hy;
             }
             if( placeoffset == 0){
-                placeoffset = coo.Hy /cal_sim.shapescope;
+                placeoffset = coo.Hy / Simulator.SHAPESCOPE;
             }
 
-            Fin_XY.add(Math.toDegrees(theta),(coo.Hy/cal_sim.shapescope)-placeoffset);
+            Fin_XY.add(Math.toDegrees(theta),(coo.Hy/ Simulator.SHAPESCOPE)-placeoffset);
             if(cooHy_min>coo.Hy){
                 cooHy_min = coo.Hy;
             }else if(cooHy_max < coo.Hy ){
                 cooHy_max = coo.Hy;
             }
         }
-        sin_high = cooHy_max/cal_sim.shapescope;
+        sin_high = cooHy_max/ Simulator.SHAPESCOPE;
         for(int i=0; i<361*NumCycle ; i++) {
             theta = Math.toRadians(i);
             sin_XY.add(i,((sin_high*Math.sin(theta-(Math.PI/2)))+sin_high));
@@ -247,12 +247,12 @@ public class fileFrame extends JFrame {
 
             //クイックソート
             if(up){
-                quicksort.setUporDown(true);
-                quicksort.quickSort(recordModel,0, recordModel.getSize(),select.getselectId(sortStr));
+                Quicksort.setUporDown(true);
+                Quicksort.quickSort(recordModel,0, recordModel.getSize(),select.getselectId(sortStr));
             }
             if(down){
-                quicksort.setUporDown(false);
-                quicksort.quickSort(recordModel,0, recordModel.getSize(),select.getselectId(sortStr));
+                Quicksort.setUporDown(false);
+                Quicksort.quickSort(recordModel,0, recordModel.getSize(),select.getselectId(sortStr));
             }
             for (int i = recordModel.getSize() - 1; i >= 0; i--) {
                 String str = recordModel.getElementAt(i);
@@ -499,7 +499,7 @@ public class fileFrame extends JFrame {
     }
 
     public static void setRecordModel(DefaultListModel<String> recordModel) {
-        fileFrame.recordModel = recordModel;
+        FileFrame.recordModel = recordModel;
     }
 
     public  static String getFilename() {

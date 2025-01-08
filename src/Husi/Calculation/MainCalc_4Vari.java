@@ -1,7 +1,7 @@
 package Husi.Calculation;
 
 
-public class maincal_4vari extends maincal {
+public class MainCalc_4Vari extends MainCalc {
     @Override
     public void run(){
 

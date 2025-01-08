@@ -1,7 +1,7 @@
 package Husi.Calculation;
 
 
-public class amplitudeMethod {
+public class AmplitudeMethod {
     public static double hurehaba(double linkA, double linkB, double linkC, double linkD) {
         double ans, ans_abs;
         double cosValue1 = (getSquare(linkD) + getSquare(linkC) - getSquare(linkB-linkA)) / (2.0 * linkD * linkC);
